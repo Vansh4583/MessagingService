@@ -1,16 +1,24 @@
 package message
 
 import (
-	"fmt"
-	"local/auth"
+	//"local/auth"
+	clientStub "local/auth/rpc/clientStub"
 	authTypes "local/auth/types"
 	"local/message/types"
 )
 
+// need to store the auth server address - get it from DB during messaged startup
+var authServerAddr string
+
+func SetAuthServerAddr(addr string) {
+	authServerAddr = addr
+}
+
 // Sends a message to the user's inbox if the sender is permitted, returning true if successful
 func Send(user authTypes.UserCap, to string, text string) bool {
-	id := auth.GetId(user)
-	fmt.Printf("DEBUG: Send called from '%s' to '%s'\n", id, to)
+
+	// Use auth client stub to validate capability
+	id := clientStub.GetId(int(user), authServerAddr)
 	if id != "" {
 		msg := types.Message{From: id, Text: text}
 		el := &inboxElement{&msg, nil}
@@ -32,7 +40,9 @@ func Send(user authTypes.UserCap, to string, text string) bool {
 
 // Dequeue and return next message in user's inbox fifo
 func Receive(user authTypes.UserCap) *types.Message {
-	userId := auth.GetId(user)
+
+	// Use auth client stub to validate capability
+	userId := clientStub.GetId(int(user), authServerAddr)
 	if userId != "" {
 		inbox := inboxes[userId]
 		if inbox == nil || inbox.head == nil {
@@ -50,7 +60,9 @@ func Receive(user authTypes.UserCap) *types.Message {
 
 // Update whether the user accepts messages from the specified sender
 func SetSendingAllowed(user authTypes.UserCap, from string, allowed bool) {
-	id := auth.GetId(user)
+
+	// Use auth client stub to validate capability
+	id := clientStub.GetId(int(user), authServerAddr)
 	if id != "" {
 		inbox := getInbox(id)
 		if allowed {

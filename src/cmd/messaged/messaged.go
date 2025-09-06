@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"local/db/rpc/api"
 	"local/lib/transport"
-	serverStub "local/message/rpc/serverStub"
+	"local/message"
+	"local/message/rpc/serverStub"
 	"log"
 	"net"
 	"os"
@@ -15,14 +16,11 @@ import (
 
 func main() {
 	ctx := context.Background()
-
 	if len(os.Args) != 2 {
 		log.Fatalf("usage: messaged <db_address>")
 	}
 
 	dbAddr := os.Args[1]
-
-	serverStub.Initialize(dbAddr)
 
 	// Listen on random UDP port
 	addr := "127.0.0.1:0"
@@ -39,25 +37,41 @@ func main() {
 	localAddr := conn.LocalAddr().String()
 	fmt.Printf("messaged listening on %s\n", localAddr)
 
-	// Register with DB using STRUCT-BASED RPC
+	// Register with DB
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode("Put"); err != nil {
-		log.Fatalf("failed to encode method: %v", err)
-	}
-
-	// USE STRUCT INSTEAD OF SEPARATE STRINGS
-	if err := enc.Encode(api.PutArgs{Key: "messaged", Value: localAddr}); err != nil {
-		log.Fatalf("failed to encode PutArgs: %v", err)
-	}
+	enc.Encode("Put")
+	enc.Encode(api.PutArgs{Key: "messaged", Value: localAddr})
 
 	if _, err := transport.Call(&buf, dbAddr); err != nil {
 		log.Fatalf("failed to register messaged: %v", err)
 	}
-
 	fmt.Println("messaged registered with db")
 
-	// Add connection to context and listen for requests
+	// Get auth server address and set it in message package
+	authAddr := getAuthAddr(dbAddr)
+	message.SetAuthServerAddr(authAddr)
+
+	// Start listening
 	ctx = transport.WithUDPListenerContext(ctx, conn)
 	transport.Listen(ctx, serverStub.Dispatch)
+}
+
+func getAuthAddr(dbAddr string) string {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	enc.Encode("Get")
+	enc.Encode("auth")
+
+	resp, err := transport.Call(&buf, dbAddr)
+	if err != nil {
+		log.Fatalf("failed to get auth address from DB: %v", err)
+	}
+
+	var authAddr string
+	if err := gob.NewDecoder(resp).Decode(&authAddr); err != nil {
+		log.Fatalf("failed to decode auth address: %v", err)
+	}
+
+	return authAddr
 }

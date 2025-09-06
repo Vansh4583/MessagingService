@@ -2,27 +2,27 @@
 package api
 
 type SignupArgs struct {
-    ID       string
-    Password string
+	ID       string
+	Password string
 }
 
 type SignupReply struct {
-    Success bool
+	Success bool
 }
 
 type LoginArgs struct {
-    ID       string
-    Password string
+	ID       string
+	Password string
 }
 
 type LoginReply struct {
-    Cap int // Placeholder for a real capability type
+	Cap int // Placeholder for a real capability type
 }
 
-type GetIDArgs struct {
-    Cap int
+type GetIdArgs struct {
+	Cap int
 }
 
-type GetIDReply struct {
-    ID string
+type GetIdReply struct {
+	Id string
 }

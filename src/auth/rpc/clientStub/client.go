@@ -1,4 +1,4 @@
-package clientstub
+package clientStub
 
 import (
 	"bytes"
@@ -10,6 +10,9 @@ import (
 )
 
 func Signup(id, pw, authAddr string) bool {
+
+	fmt.Printf("Calling Signup for user: %s\n", id) // Debug line
+
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	enc.Encode("Signup")
@@ -38,10 +41,21 @@ func Login(id, pw, authAddr string) int {
 
 	var reply api.LoginReply
 	gob.NewDecoder(resp).Decode(&reply)
-
-	// DEBUG LINE
-	fmt.Printf("DEBUG: Login successful for user ID: '%s' with cap: %d\n", id, reply.Cap)
-
 	return reply.Cap
+}
 
+func GetId(cap int, authAddr string) string {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	enc.Encode("GetId")
+	enc.Encode(api.GetIdArgs{Cap: cap})
+
+	resp, err := transport.Call(&buf, authAddr)
+	if err != nil {
+		return ""
+	}
+
+	var reply api.GetIdReply
+	gob.NewDecoder(resp).Decode(&reply)
+	return reply.Id
 }

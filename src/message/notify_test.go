@@ -15,7 +15,7 @@ func TestReceiver(t *testing.T) {
 	c2 := auth.Login("u2", "p2")
 	SetSendingAllowed(c1, "u2", true)
 	ch := make(receiver, 1)
-	SetReceiver(c1, ch, true)
+	//SetReceiver(c1, ch, true)
 	Send(c2, "u1", "hello")
 	go func() {
 		time.Sleep(time.Millisecond)

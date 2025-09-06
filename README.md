@@ -1,6 +1,6 @@
 # Real-Time Messaging Service
 
-A **real-time chat application** built in Go using a custom RPC framework over UDP.  
+A **distributed, real-time chat application** built in Go using a custom RPC framework over UDP.  
 The system supports **user authentication**, **permission controls**, and **dual-mode message delivery**:  
 - **Pull-based messaging** (clients poll for new messages manually)  
 - **Push-based messaging** (server initiates callbacks to clients using remote object proxies)
