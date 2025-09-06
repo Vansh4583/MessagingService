@@ -28,7 +28,7 @@ The backend is organized into **independent microservices**:
 
 Each service runs as a separate Go process. **All processes pick a random port**, which gets registered with the database server for discovery. 
 
-**The db server, auth server, message server, and every single chat client must be ran on separate terminals**.
+**The db server, auth server, message server, and every single chat client must be run on separate terminals**.
 
 ### 1. Start the Database Server
 
@@ -37,9 +37,9 @@ go run cmd/dbd/dbd.go
 ```
 
 - Outputs the database server's listening address (random port).  
-- Example:
+- Example output:
 
-![DB Server](src/images/1.jpg)
+![DB Server](src/images/11.jpg)
 
 ---
 
@@ -96,7 +96,7 @@ go run cmd/chat/chat.go 127.0.0.1:64105 s bob pswd
 ---
 ### 5. Send and Receive Messages
 
-- These are the commands available after logging in.
+These are the commands available after logging in.
 
 
 ```
@@ -137,6 +137,7 @@ block <user> # Block a user from sending messages
 
 
 ![Push Example](src/images/7.jpg)
+---
 ![Push Example](src/images/6.jpg)
 
 ---
